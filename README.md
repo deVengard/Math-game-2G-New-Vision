@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: соревнование 10/12 правильных</title>
+    <title>🧮 Считалочка: соревнование 10 правильных</title>
     <style>
         * {
             margin: 0;
@@ -210,7 +210,7 @@ Math game for children
             font-size: 3rem;
         }
 
-        /* СОРЕВНОВАНИЕ - обновлено для счётчика правильных/всех задач */
+        /* СОРЕВНОВАНИЕ - ПРАВИЛЬНАЯ ЛОГИКА */
         .competition-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -468,7 +468,7 @@ Math game for children
             <div class="feedback-message" id="classicFeedback">➡️ Введи ответ и нажми Enter</div>
         </div>
 
-        <!-- Соревнование - ОБНОВЛЕНО: счётчик правильных/всех задач -->
+        <!-- Соревнование - ПРАВИЛЬНАЯ ЛОГИКА -->
         <div id="competitionMode" class="competition-area">
             <div class="competition-grid">
                 <!-- Игрок 1 -->
@@ -542,11 +542,11 @@ Math game for children
         // Состояние классики
         let classicCurrentExample = { text: '5 + 3', answer: 8 };
 
-        // Состояние соревнования - ОБНОВЛЕНО: теперь считаем и правильные, и всего задач
+        // Состояние соревнования - ПРАВИЛЬНАЯ ЛОГИКА
         let compState = {
             p1: { 
                 active: false, 
-                correctCount: 0,      // количество правильных ответов
+                correctCount: 0,      // количество правильных ответов (до 10)
                 totalTasks: 0,         // общее количество заданных задач
                 currentTask: null,     // текущая задача
                 time: 0, 
@@ -678,7 +678,7 @@ Math game for children
             input.focus();
         }
 
-        // ========== СОРЕВНОВАНИЕ (10 ПРАВИЛЬНЫХ, счётчик правильных/всех) ==========
+        // ========== СОРЕВНОВАНИЕ (10 ПРАВИЛЬНЫХ) ==========
         function startPlayer(playerNum) {
             // Проверяем, может ли игрок начать
             if (playerNum === 1) {
@@ -783,7 +783,7 @@ Math game for children
                     
                     compState.p1.correctCount++;
                     
-                    // Обновляем прогресс
+                    // Обновляем прогресс: правильные/всего
                     document.getElementById('p1Progress').innerText = `${compState.p1.correctCount}/${compState.p1.totalTasks} (нужно 10)`;
                     
                     if (compState.p1.correctCount >= 10) {
@@ -802,21 +802,21 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        // Генерируем новую задачу
+                        // Генерируем НОВУЮ задачу (старая не сохраняется)
                         compState.p1.currentTask = generateExample();
                         document.getElementById('p1Example').innerText = compState.p1.currentTask.text;
                         input.focus();
                     }
                 } else {
-                    // НЕПРАВИЛЬНО: счётчик правильных не увеличивается
+                    // НЕПРАВИЛЬНО: счётчик правильных не увеличивается, но задача меняется
                     feedbackDiv.innerHTML = `❌ Правильно: ${task.answer}`;
                     feedbackDiv.style.color = '#e74c3c';
                     feedbackDiv.style.fontSize = '2rem';
                     
-                    // Обновляем прогресс (только общее количество задач)
+                    // Обновляем прогресс (только общее количество задач увеличилось)
                     document.getElementById('p1Progress').innerText = `${compState.p1.correctCount}/${compState.p1.totalTasks} (нужно 10)`;
                     
-                    // Генерируем новую задачу (игрок продолжает)
+                    // Генерируем НОВУЮ задачу (старая не сохраняется)
                     compState.p1.currentTask = generateExample();
                     document.getElementById('p1Example').innerText = compState.p1.currentTask.text;
                     input.focus();
@@ -868,7 +868,7 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        // Генерируем новую задачу
+                        // Генерируем НОВУЮ задачу
                         compState.p2.currentTask = generateExample();
                         document.getElementById('p2Example').innerText = compState.p2.currentTask.text;
                         input.focus();
@@ -882,7 +882,7 @@ Math game for children
                     // Обновляем прогресс (только общее количество задач)
                     document.getElementById('p2Progress').innerText = `${compState.p2.correctCount}/${compState.p2.totalTasks} (нужно 10)`;
                     
-                    // Генерируем новую задачу
+                    // Генерируем НОВУЮ задачу
                     compState.p2.currentTask = generateExample();
                     document.getElementById('p2Example').innerText = compState.p2.currentTask.text;
                     input.focus();
