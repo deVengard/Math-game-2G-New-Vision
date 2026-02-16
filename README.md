@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: соревнование работает идеально</title>
+    <title>🧮 Считалочка: соревнование ИСПРАВЛЕНО</title>
     <style>
         * {
             margin: 0;
@@ -542,9 +542,8 @@ Math game for children
         // Состояние классики
         let classicCurrentExample = { text: '5 + 3', answer: 8 };
 
-        // Состояние соревнования
+        // Состояние соревнования - ИСПРАВЛЕНО
         let compState = {
-            gameActive: false,
             p1: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false },
             p2: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false }
         };
@@ -663,19 +662,27 @@ Math game for children
             input.focus();
         }
 
-        // ========== СОРЕВНОВАНИЕ ==========
+        // ========== СОРЕВНОВАНИЕ (ИСПРАВЛЕНО) ==========
         function startPlayer(playerNum) {
-            // Если игра уже активна (кто-то играет) - нельзя начать
-            if (compState.gameActive) return;
-            
-            // Проверяем, не закончил ли уже этот игрок (чтобы не начать заново)
-            if (playerNum === 1 && compState.p1.done) {
-                alert('Игрок 1 уже закончил соревнование!');
-                return;
-            }
-            if (playerNum === 2 && compState.p2.done) {
-                alert('Игрок 2 уже закончил соревнование!');
-                return;
+            // Проверяем, может ли игрок начать
+            if (playerNum === 1) {
+                // Игрок 1 может начать, если:
+                // 1. Он не активен
+                // 2. Он не закончил
+                // 3. Игрок 2 не активен (не играет сейчас)
+                if (compState.p1.active || compState.p1.done || compState.p2.active) {
+                    alert('Сейчас нельзя начать игру за Игрока 1');
+                    return;
+                }
+            } else {
+                // Игрок 2 может начать, если:
+                // 1. Он не активен
+                // 2. Он не закончил
+                // 3. Игрок 1 не активен (не играет сейчас)
+                if (compState.p2.active || compState.p2.done || compState.p1.active) {
+                    alert('Сейчас нельзя начать игру за Игрока 2');
+                    return;
+                }
             }
 
             // Генерируем 10 задач
@@ -696,10 +703,9 @@ Math game for children
                 document.getElementById('p1Progress').innerText = `1/10`;
                 document.getElementById('p1Feedback').innerHTML = '';
 
-                // Блокируем старт второго игрока
+                // Блокируем кнопку второго игрока
                 document.getElementById('p2StartBtn').disabled = true;
 
-                // АВТОФОКУС
                 setTimeout(() => {
                     document.getElementById('p1Input').focus();
                 }, 50);
@@ -723,10 +729,9 @@ Math game for children
                 document.getElementById('p2Progress').innerText = `1/10`;
                 document.getElementById('p2Feedback').innerHTML = '';
 
-                // Блокируем старт первого игрока
+                // Блокируем кнопку первого игрока
                 document.getElementById('p1StartBtn').disabled = true;
 
-                // АВТОФОКУС
                 setTimeout(() => {
                     document.getElementById('p2Input').focus();
                 }, 50);
@@ -738,8 +743,7 @@ Math game for children
                 }, 100);
             }
 
-            compState.gameActive = true;
-            document.getElementById('compWinner').innerHTML = '⚔️ Игра началась!';
+            document.getElementById('compWinner').innerHTML = `⚔️ Игрок ${playerNum} начал соревнование!`;
         }
 
         function handlePlayerAnswer(playerNum) {
@@ -766,24 +770,21 @@ Math game for children
                     
                     compState.p1.currentIdx++;
                     if (compState.p1.currentIdx >= 10) {
-                        // Игрок 1 закончил все 10 задач
+                        // Игрок 1 закончил
                         compState.p1.active = false;
                         compState.p1.done = true;
                         clearInterval(compState.p1.timer);
                         document.getElementById('p1Input').disabled = true;
                         document.getElementById('p1Progress').innerText = `10/10 ✅`;
                         
-                        // ВАЖНО: Разблокируем старт второго игрока, если он ещё не закончил
+                        // Разблокируем кнопку второго игрока, если он ещё не закончил
                         if (!compState.p2.done) {
                             document.getElementById('p2StartBtn').disabled = false;
-                            // Также снимаем флаг gameActive, чтобы второй мог начать
-                            compState.gameActive = false;
                         }
                         
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        // Следующая задача
                         document.getElementById('p1Example').innerText = compState.p1.tasks[compState.p1.currentIdx].text;
                         document.getElementById('p1Progress').innerText = `${compState.p1.currentIdx+1}/10`;
                         input.focus();
@@ -818,24 +819,21 @@ Math game for children
                     
                     compState.p2.currentIdx++;
                     if (compState.p2.currentIdx >= 10) {
-                        // Игрок 2 закончил все 10 задач
+                        // Игрок 2 закончил
                         compState.p2.active = false;
                         compState.p2.done = true;
                         clearInterval(compState.p2.timer);
                         document.getElementById('p2Input').disabled = true;
                         document.getElementById('p2Progress').innerText = `10/10 ✅`;
                         
-                        // ВАЖНО: Разблокируем старт первого игрока, если он ещё не закончил
+                        // Разблокируем кнопку первого игрока, если он ещё не закончил
                         if (!compState.p1.done) {
                             document.getElementById('p1StartBtn').disabled = false;
-                            // Также снимаем флаг gameActive, чтобы первый мог начать
-                            compState.gameActive = false;
                         }
                         
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        // Следующая задача
                         document.getElementById('p2Example').innerText = compState.p2.tasks[compState.p2.currentIdx].text;
                         document.getElementById('p2Progress').innerText = `${compState.p2.currentIdx+1}/10`;
                         input.focus();
@@ -852,8 +850,6 @@ Math game for children
 
         function checkCompetitionEnd() {
             if (compState.p1.done && compState.p2.done) {
-                compState.gameActive = false;
-                
                 let winner = '';
                 if (compState.p1.time < compState.p2.time) {
                     winner = '🏆 Победил Игрок 1 (быстрее)!';
@@ -865,13 +861,25 @@ Math game for children
                 
                 document.getElementById('compWinner').innerHTML = `${winner}<br>⏱️ Игрок1: ${compState.p1.time.toFixed(1)}с | Игрок2: ${compState.p2.time.toFixed(1)}с`;
                 
-                // Разблокируем кнопки старта для новой игры
+                // Разблокируем обе кнопки для новой игры
                 document.getElementById('p1StartBtn').disabled = false;
                 document.getElementById('p2StartBtn').disabled = false;
                 
                 // Сбрасываем состояние для новой игры
                 compState.p1.done = false;
                 compState.p2.done = false;
+                compState.p1.active = false;
+                compState.p2.active = false;
+                
+                // Сбрасываем прогресс
+                document.getElementById('p1Progress').innerText = '0/10';
+                document.getElementById('p2Progress').innerText = '0/10';
+                document.getElementById('p1Timer').innerText = '0.0 с';
+                document.getElementById('p2Timer').innerText = '0.0 с';
+                document.getElementById('p1Example').innerText = '5 + 3';
+                document.getElementById('p2Example').innerText = '7 - 2';
+                document.getElementById('p1Feedback').innerHTML = '';
+                document.getElementById('p2Feedback').innerHTML = '';
             }
         }
 
