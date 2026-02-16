@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: финальная версия</title>
+    <title>🧮 Считалочка: максимальный автофокус</title>
     <style>
         * {
             margin: 0;
@@ -546,7 +546,7 @@ Math game for children
 
         // Состояние соревнования
         let compState = {
-            gameActive: false, // true если кто-то уже играет
+            gameActive: false,
             p1: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false },
             p2: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false }
         };
@@ -674,7 +674,7 @@ Math game for children
             if (playerNum === 1 && compState.p1.done) return;
             if (playerNum === 2 && compState.p2.done) return;
 
-            // Генерируем задачи
+            // Генерируем 10 задач
             const tasks = [];
             for (let i = 0; i < 10; i++) tasks.push(generateExample());
 
@@ -688,13 +688,17 @@ Math game for children
                 document.getElementById('p1Example').innerText = tasks[0].text;
                 document.getElementById('p1Input').disabled = false;
                 document.getElementById('p1Input').value = '';
-                document.getElementById('p1Input').focus();
                 document.getElementById('p1StartBtn').disabled = true;
                 document.getElementById('p1Progress').innerText = `1/10`;
                 document.getElementById('p1Feedback').innerHTML = '';
 
                 // Блокируем старт второго игрока
                 document.getElementById('p2StartBtn').disabled = true;
+
+                // АВТОФОКУС: курсор в поле игрока 1
+                setTimeout(() => {
+                    document.getElementById('p1Input').focus();
+                }, 50);
 
                 if (compState.p1.timer) clearInterval(compState.p1.timer);
                 compState.p1.timer = setInterval(() => {
@@ -711,13 +715,17 @@ Math game for children
                 document.getElementById('p2Example').innerText = tasks[0].text;
                 document.getElementById('p2Input').disabled = false;
                 document.getElementById('p2Input').value = '';
-                document.getElementById('p2Input').focus();
                 document.getElementById('p2StartBtn').disabled = true;
                 document.getElementById('p2Progress').innerText = `1/10`;
                 document.getElementById('p2Feedback').innerHTML = '';
 
                 // Блокируем старт первого игрока
                 document.getElementById('p1StartBtn').disabled = true;
+
+                // АВТОФОКУС: курсор в поле игрока 2
+                setTimeout(() => {
+                    document.getElementById('p2Input').focus();
+                }, 50);
 
                 if (compState.p2.timer) clearInterval(compState.p2.timer);
                 compState.p2.timer = setInterval(() => {
@@ -754,6 +762,7 @@ Math game for children
                     
                     compState.p1.currentIdx++;
                     if (compState.p1.currentIdx >= 10) {
+                        // Игрок 1 закончил все 10 задач
                         compState.p1.active = false;
                         compState.p1.done = true;
                         clearInterval(compState.p1.timer);
@@ -768,16 +777,20 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
+                        // Следующая задача
                         document.getElementById('p1Example').innerText = compState.p1.tasks[compState.p1.currentIdx].text;
                         document.getElementById('p1Progress').innerText = `${compState.p1.currentIdx+1}/10`;
+                        // АВТОФОКУС после правильного ответа
+                        input.focus();
                     }
                 } else {
                     feedbackDiv.innerHTML = `❌ Правильно: ${task.answer}`;
                     feedbackDiv.style.color = '#e74c3c';
                     feedbackDiv.style.fontSize = '2rem';
+                    // АВТОФОКУС остаётся для повторной попытки
+                    input.focus();
                 }
                 input.value = '';
-                input.focus();
             } else {
                 if (!compState.p2.active) return;
                 
@@ -801,6 +814,7 @@ Math game for children
                     
                     compState.p2.currentIdx++;
                     if (compState.p2.currentIdx >= 10) {
+                        // Игрок 2 закончил все 10 задач
                         compState.p2.active = false;
                         compState.p2.done = true;
                         clearInterval(compState.p2.timer);
@@ -815,16 +829,20 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
+                        // Следующая задача
                         document.getElementById('p2Example').innerText = compState.p2.tasks[compState.p2.currentIdx].text;
                         document.getElementById('p2Progress').innerText = `${compState.p2.currentIdx+1}/10`;
+                        // АВТОФОКУС после правильного ответа
+                        input.focus();
                     }
                 } else {
                     feedbackDiv.innerHTML = `❌ Правильно: ${task.answer}`;
                     feedbackDiv.style.color = '#e74c3c';
                     feedbackDiv.style.fontSize = '2rem';
+                    // АВТОФОКУС остаётся для повторной попытки
+                    input.focus();
                 }
                 input.value = '';
-                input.focus();
             }
         }
 
@@ -874,7 +892,12 @@ Math game for children
             document.getElementById('blitzCurrentNum').innerText = 1;
             document.getElementById('blitzExample').innerText = blitzState.tasks[0].text;
             document.getElementById('blitzInput').value = '';
-            document.getElementById('blitzInput').focus();
+            
+            // АВТОФОКУС
+            setTimeout(() => {
+                document.getElementById('blitzInput').focus();
+            }, 50);
+            
             document.getElementById('blitzTimerDisplay').innerText = '00:' + (blitzState.timeLeft < 10 ? '0' : '') + blitzState.timeLeft;
             
             if (blitzState.timer) clearInterval(blitzState.timer);
@@ -1012,7 +1035,7 @@ Math game for children
                     
                     document.getElementById(btn.dataset.mode + 'Mode').classList.add('active');
                     
-                    // Автофокус
+                    // Автофокус при переключении
                     setTimeout(() => {
                         if (btn.dataset.mode === 'classic') {
                             document.getElementById('classicAnswer').focus();
