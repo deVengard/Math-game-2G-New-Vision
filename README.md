@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: автофокус + визуальные ответы</title>
+    <title>🧮 Считалочка: финальная версия</title>
     <style>
         * {
             margin: 0;
@@ -44,6 +44,7 @@ Math game for children
             cursor: pointer;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+            transition: 0.1s;
         }
         .menu-btn.active {
             background: #f6e58d;
@@ -78,6 +79,7 @@ Math game for children
             font-size: 1.2rem;
             padding: 8px 22px;
             border-radius: 50px;
+            border: 2px solid white;
         }
         .digits-group, .ops-group {
             display: flex;
@@ -93,6 +95,7 @@ Math game for children
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 5px 0 #a0bccf;
+            transition: 0.1s;
         }
         .op-btn {
             font-size: 2rem;
@@ -159,6 +162,12 @@ Math game for children
             border: 6px solid #3498db;
             border-radius: 70px;
             padding: 15px;
+            font-weight: 700;
+            outline: none;
+        }
+        .big-input:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 0 4px rgba(241,196,15,0.3);
         }
         .big-btn {
             background: #2ecc71;
@@ -170,6 +179,11 @@ Math game for children
             border: 5px solid white;
             box-shadow: 0 8px 0 #1e8b4c;
             cursor: pointer;
+            font-weight: 700;
+        }
+        .big-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #1e8b4c;
         }
         .feedback-message {
             font-size: 2rem;
@@ -239,6 +253,11 @@ Math game for children
             border-radius: 50px;
             padding: 15px;
             margin: 15px 0;
+            outline: none;
+        }
+        .comp-input:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 0 4px rgba(241,196,15,0.3);
         }
         .player-start-btn {
             background: #f39c12;
@@ -252,6 +271,16 @@ Math game for children
             box-shadow: 0 8px 0 #b85e0a;
             width: 100%;
             margin: 10px 0;
+        }
+        .player-start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #b85e0a;
+        }
+        .player-start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 8px 0 #b85e0a;
         }
         .comp-progress {
             font-size: 2rem;
@@ -285,6 +314,7 @@ Math game for children
             padding: 10px;
             border-radius: 40px;
             margin-top: 10px;
+            min-height: 60px;
         }
 
         /* БЛИЦ */
@@ -313,6 +343,10 @@ Math game for children
             border: 4px solid #3498db;
             border-radius: 50px;
             padding: 10px;
+            outline: none;
+        }
+        .setting-item input:focus {
+            border-color: #f1c40f;
         }
         .blitz-start-btn {
             background: #27ae60;
@@ -324,6 +358,10 @@ Math game for children
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 8px 0 #1e8449;
+        }
+        .blitz-start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #1e8449;
         }
         .blitz-game-area {
             background: #f8f9fa;
@@ -387,6 +425,11 @@ Math game for children
             text-decoration: none;
             font-weight: 700;
             border: 3px solid white;
+            box-shadow: 0 6px 0 #1a242f;
+        }
+        .links a:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1a242f;
         }
     </style>
 </head>
@@ -424,12 +467,13 @@ Math game for children
                 <input type="number" id="classicAnswer" class="big-input" placeholder="?" autofocus>
                 <button class="big-btn" id="classicCheck">✅ Проверить</button>
             </div>
-            <div class="feedback-message" id="classicFeedback">➡️ Введи ответ</div>
+            <div class="feedback-message" id="classicFeedback">➡️ Введи ответ и нажми Enter</div>
         </div>
 
         <!-- Соревнование -->
         <div id="competitionMode" class="competition-area">
             <div class="competition-grid">
+                <!-- Игрок 1 -->
                 <div class="player-card player1">
                     <div class="player-title">🔴 ИГРОК 1</div>
                     <div class="comp-example" id="p1Example">5 + 3</div>
@@ -439,6 +483,7 @@ Math game for children
                     <div class="player-timer" id="p1Timer">0.0 с</div>
                     <div class="comp-feedback" id="p1Feedback"></div>
                 </div>
+                <!-- Игрок 2 -->
                 <div class="player-card player2">
                     <div class="player-title">🔵 ИГРОК 2</div>
                     <div class="comp-example" id="p2Example">7 - 2</div>
@@ -448,8 +493,8 @@ Math game for children
                     <div class="player-timer" id="p2Timer">0.0 с</div>
                     <div class="comp-feedback" id="p2Feedback"></div>
                 </div>
-                <div class="comp-winner" id="compWinner">🏆 Нажмите СТАРТ, чтобы начать</div>
             </div>
+            <div class="comp-winner" id="compWinner">🏆 Нажми СТАРТ, чтобы начать соревнование</div>
         </div>
 
         <!-- Блиц-турнир -->
@@ -501,6 +546,7 @@ Math game for children
 
         // Состояние соревнования
         let compState = {
+            gameActive: false, // true если кто-то уже играет
             p1: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false },
             p2: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false }
         };
@@ -569,6 +615,17 @@ Math game for children
             return { text: `${a} ${op} ${b}`, answer, op };
         }
 
+        // Обновление UI настроек
+        function updateSettingsUI() {
+            document.querySelectorAll('.digit-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.digits) === currentDigits);
+            });
+            document.querySelectorAll('.op-btn').forEach(btn => {
+                btn.classList.toggle('active', selectedOps.has(btn.dataset.op));
+            });
+            document.getElementById('multiToggle').classList.toggle('active', multiMode);
+        }
+
         // ========== КЛАССИКА ==========
         function updateClassicExample() {
             classicCurrentExample = generateExample();
@@ -610,16 +667,25 @@ Math game for children
 
         // ========== СОРЕВНОВАНИЕ ==========
         function startPlayer(playerNum) {
+            // Если игра уже активна - нельзя начать
+            if (compState.gameActive) return;
+            
+            // Проверяем, не закончил ли уже этот игрок
+            if (playerNum === 1 && compState.p1.done) return;
+            if (playerNum === 2 && compState.p2.done) return;
+
+            // Генерируем задачи
+            const tasks = [];
+            for (let i = 0; i < 10; i++) tasks.push(generateExample());
+
             if (playerNum === 1) {
-                if (compState.p1.active || compState.p1.done) return;
-                compState.p1.tasks = [];
-                for (let i = 0; i < 10; i++) compState.p1.tasks.push(generateExample());
+                compState.p1.tasks = tasks;
                 compState.p1.currentIdx = 0;
                 compState.p1.time = 0;
                 compState.p1.active = true;
                 compState.p1.done = false;
 
-                document.getElementById('p1Example').innerText = compState.p1.tasks[0].text;
+                document.getElementById('p1Example').innerText = tasks[0].text;
                 document.getElementById('p1Input').disabled = false;
                 document.getElementById('p1Input').value = '';
                 document.getElementById('p1Input').focus();
@@ -627,21 +693,22 @@ Math game for children
                 document.getElementById('p1Progress').innerText = `1/10`;
                 document.getElementById('p1Feedback').innerHTML = '';
 
+                // Блокируем старт второго игрока
+                document.getElementById('p2StartBtn').disabled = true;
+
                 if (compState.p1.timer) clearInterval(compState.p1.timer);
                 compState.p1.timer = setInterval(() => {
                     compState.p1.time += 0.1;
                     document.getElementById('p1Timer').innerText = compState.p1.time.toFixed(1) + ' с';
                 }, 100);
             } else {
-                if (compState.p2.active || compState.p2.done) return;
-                compState.p2.tasks = [];
-                for (let i = 0; i < 10; i++) compState.p2.tasks.push(generateExample());
+                compState.p2.tasks = tasks;
                 compState.p2.currentIdx = 0;
                 compState.p2.time = 0;
                 compState.p2.active = true;
                 compState.p2.done = false;
 
-                document.getElementById('p2Example').innerText = compState.p2.tasks[0].text;
+                document.getElementById('p2Example').innerText = tasks[0].text;
                 document.getElementById('p2Input').disabled = false;
                 document.getElementById('p2Input').value = '';
                 document.getElementById('p2Input').focus();
@@ -649,20 +716,33 @@ Math game for children
                 document.getElementById('p2Progress').innerText = `1/10`;
                 document.getElementById('p2Feedback').innerHTML = '';
 
+                // Блокируем старт первого игрока
+                document.getElementById('p1StartBtn').disabled = true;
+
                 if (compState.p2.timer) clearInterval(compState.p2.timer);
                 compState.p2.timer = setInterval(() => {
                     compState.p2.time += 0.1;
                     document.getElementById('p2Timer').innerText = compState.p2.time.toFixed(1) + ' с';
                 }, 100);
             }
+
+            compState.gameActive = true;
+            document.getElementById('compWinner').innerHTML = '⚔️ Игра началась!';
         }
 
         function handlePlayerAnswer(playerNum) {
             if (playerNum === 1) {
                 if (!compState.p1.active) return;
+                
                 const input = document.getElementById('p1Input');
                 const val = parseInt(input.value);
-                if (isNaN(val)) return;
+                if (isNaN(val)) {
+                    document.getElementById('p1Feedback').innerHTML = '❌ Введите число!';
+                    document.getElementById('p1Feedback').style.color = '#e74c3c';
+                    input.value = '';
+                    input.focus();
+                    return;
+                }
 
                 const task = compState.p1.tasks[compState.p1.currentIdx];
                 const feedbackDiv = document.getElementById('p1Feedback');
@@ -679,7 +759,14 @@ Math game for children
                         clearInterval(compState.p1.timer);
                         document.getElementById('p1Input').disabled = true;
                         document.getElementById('p1Progress').innerText = `10/10 ✅`;
-                        document.getElementById('p1StartBtn').disabled = false;
+                        
+                        // Разблокируем старт второго игрока, если он ещё не закончил
+                        if (!compState.p2.done) {
+                            document.getElementById('p2StartBtn').disabled = false;
+                        }
+                        
+                        // Проверяем, не закончили ли оба
+                        checkCompetitionEnd();
                     } else {
                         document.getElementById('p1Example').innerText = compState.p1.tasks[compState.p1.currentIdx].text;
                         document.getElementById('p1Progress').innerText = `${compState.p1.currentIdx+1}/10`;
@@ -693,9 +780,16 @@ Math game for children
                 input.focus();
             } else {
                 if (!compState.p2.active) return;
+                
                 const input = document.getElementById('p2Input');
                 const val = parseInt(input.value);
-                if (isNaN(val)) return;
+                if (isNaN(val)) {
+                    document.getElementById('p2Feedback').innerHTML = '❌ Введите число!';
+                    document.getElementById('p2Feedback').style.color = '#e74c3c';
+                    input.value = '';
+                    input.focus();
+                    return;
+                }
 
                 const task = compState.p2.tasks[compState.p2.currentIdx];
                 const feedbackDiv = document.getElementById('p2Feedback');
@@ -712,7 +806,14 @@ Math game for children
                         clearInterval(compState.p2.timer);
                         document.getElementById('p2Input').disabled = true;
                         document.getElementById('p2Progress').innerText = `10/10 ✅`;
-                        document.getElementById('p2StartBtn').disabled = false;
+                        
+                        // Разблокируем старт первого игрока, если он ещё не закончил
+                        if (!compState.p1.done) {
+                            document.getElementById('p1StartBtn').disabled = false;
+                        }
+                        
+                        // Проверяем, не закончили ли оба
+                        checkCompetitionEnd();
                     } else {
                         document.getElementById('p2Example').innerText = compState.p2.tasks[compState.p2.currentIdx].text;
                         document.getElementById('p2Progress').innerText = `${compState.p2.currentIdx+1}/10`;
@@ -725,13 +826,26 @@ Math game for children
                 input.value = '';
                 input.focus();
             }
+        }
 
+        function checkCompetitionEnd() {
             if (compState.p1.done && compState.p2.done) {
+                compState.gameActive = false;
+                
                 let winner = '';
-                if (compState.p1.time < compState.p2.time) winner = '🏆 Победил Игрок 1 (быстрее)!';
-                else if (compState.p2.time < compState.p1.time) winner = '🏆 Победил Игрок 2 (быстрее)!';
-                else winner = '🤝 Ничья!';
+                if (compState.p1.time < compState.p2.time) {
+                    winner = '🏆 Победил Игрок 1 (быстрее)!';
+                } else if (compState.p2.time < compState.p1.time) {
+                    winner = '🏆 Победил Игрок 2 (быстрее)!';
+                } else {
+                    winner = '🤝 Ничья!';
+                }
+                
                 document.getElementById('compWinner').innerHTML = `${winner}<br>⏱️ Игрок1: ${compState.p1.time.toFixed(1)}с | Игрок2: ${compState.p2.time.toFixed(1)}с`;
+                
+                // Разблокируем кнопки старта для новой игры
+                document.getElementById('p1StartBtn').disabled = false;
+                document.getElementById('p2StartBtn').disabled = false;
             }
         }
 
@@ -878,29 +992,27 @@ Math game for children
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         window.addEventListener('load', () => {
-            // Обновление UI настроек
-            function updateSettingsUI() {
-                digitBtns.forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.digits) === currentDigits));
-                opBtns.forEach(btn => btn.classList.toggle('active', selectedOps.has(btn.dataset.op)));
-                multiToggle.classList.toggle('active', multiMode);
-            }
-
+            // Настройки
             const digitBtns = document.querySelectorAll('.digit-btn');
             const opBtns = document.querySelectorAll('.op-btn');
             const multiToggle = document.getElementById('multiToggle');
 
             updateSettingsUI();
+            updateClassicExample();
 
             // Переключение режимов
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    
                     document.querySelectorAll('.classic-area, .competition-area, .blitz-area').forEach(el => {
                         el.classList.remove('active');
                     });
+                    
                     document.getElementById(btn.dataset.mode + 'Mode').classList.add('active');
                     
+                    // Автофокус
                     setTimeout(() => {
                         if (btn.dataset.mode === 'classic') {
                             document.getElementById('classicAnswer').focus();
@@ -911,7 +1023,7 @@ Math game for children
                 });
             });
 
-            // Настройки
+            // Настройки чисел
             digitBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     currentDigits = parseInt(btn.dataset.digits);
@@ -920,6 +1032,7 @@ Math game for children
                 });
             });
 
+            // Настройки операций
             opBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const op = btn.dataset.op;
@@ -936,6 +1049,7 @@ Math game for children
                 });
             });
 
+            // Мультирежим
             multiToggle.addEventListener('click', () => {
                 multiMode = !multiMode;
                 if (!multiMode && selectedOps.size > 1) {
@@ -948,7 +1062,6 @@ Math game for children
             });
 
             // Классика
-            updateClassicExample();
             document.getElementById('classicCheck').addEventListener('click', handleClassicAnswer);
             document.getElementById('classicAnswer').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -967,6 +1080,7 @@ Math game for children
                     handlePlayerAnswer(1);
                 }
             });
+            
             document.getElementById('p2Input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
