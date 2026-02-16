@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: Соревнование с автовводом</title>
+    <title>🧮 Считалочка: Полный блиц-турнир</title>
     <style>
         * {
             margin: 0;
@@ -212,9 +212,6 @@ Math game for children
             padding: 15px;
             margin: 15px 0;
         }
-        .comp-input:focus {
-            outline: 4px solid #f1c40f;
-        }
         .player-start-btn {
             background: #f39c12;
             color: white;
@@ -255,6 +252,105 @@ Math game for children
             margin-top: 20px;
         }
 
+        /* БЛИЦ-ТУРНИР */
+        .blitz-settings {
+            background: #ecf0f1;
+            border-radius: 60px;
+            padding: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .setting-item input {
+            font-size: 2rem;
+            width: 100px;
+            text-align: center;
+            border: 4px solid #3498db;
+            border-radius: 50px;
+            padding: 10px;
+        }
+        .blitz-start-btn {
+            background: #27ae60;
+            color: white;
+            font-size: 2.2rem;
+            padding: 20px 50px;
+            border-radius: 60px;
+            border: 4px solid white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #1e8449;
+        }
+        .blitz-game-area {
+            background: #f8f9fa;
+            border-radius: 60px;
+            padding: 30px;
+            border: 5px solid white;
+        }
+        .blitz-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        .blitz-timer {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 60px;
+            font-family: monospace;
+        }
+        .blitz-example {
+            font-size: 5rem;
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 70px;
+            border: 5px solid #f39c12;
+            margin-bottom: 25px;
+        }
+        .blitz-input-block {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .blitz-feedback {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 3rem;
+            margin: 20px 0;
+            min-height: 60px;
+            flex-wrap: wrap;
+        }
+        .correct-icon { color: #27ae60; }
+        .wrong-icon { color: #e74c3c; }
+        .blitz-result {
+            background: #fff3cd;
+            border-radius: 60px;
+            padding: 30px;
+            font-size: 2.2rem;
+            text-align: center;
+            border: 5px solid #f1c40f;
+            margin-top: 20px;
+        }
+        .grade {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-top: 15px;
+        }
+
         .links {
             display: flex;
             justify-content: center;
@@ -277,7 +373,7 @@ Math game for children
     <div class="main-menu">
         <div class="menu-btn active" data-mode="classic">📚 Классика</div>
         <div class="menu-btn" data-mode="competition">🏆 Соревнование</div>
-        <div class="menu-btn" data-mode="blitz">⚡ Блиц</div>
+        <div class="menu-btn" data-mode="blitz">⚡ Блиц-турнир</div>
     </div>
 
     <div class="game-panel">
@@ -311,7 +407,6 @@ Math game for children
         <!-- Соревнование -->
         <div id="competitionMode" class="competition-area">
             <div class="competition-grid">
-                <!-- Игрок 1 -->
                 <div class="player-card player1">
                     <div class="player-title">🔴 ИГРОК 1</div>
                     <div class="comp-example" id="p1Example">5 + 3</div>
@@ -320,7 +415,6 @@ Math game for children
                     <div class="comp-progress" id="p1Progress">0/10</div>
                     <div class="player-timer" id="p1Timer">0.0 с</div>
                 </div>
-                <!-- Игрок 2 -->
                 <div class="player-card player2">
                     <div class="player-title">🔵 ИГРОК 2</div>
                     <div class="comp-example" id="p2Example">7 - 2</div>
@@ -333,9 +427,33 @@ Math game for children
             </div>
         </div>
 
-        <!-- Блиц (упрощённо) -->
+        <!-- БЛИЦ-ТУРНИР -->
         <div id="blitzMode" class="blitz-area">
-            <div style="text-align:center; font-size:2rem; padding:50px;">⚡ Блиц-турнир будет здесь</div>
+            <div class="blitz-settings">
+                <div class="setting-item">
+                    <span>📋 Задач:</span>
+                    <input type="number" id="blitzTaskCount" min="1" max="30" value="10">
+                </div>
+                <div class="setting-item">
+                    <span>⏱️ Секунд на задачу:</span>
+                    <input type="number" id="blitzTimeLimit" min="3" max="60" value="10">
+                </div>
+                <button class="blitz-start-btn" id="blitzStartBtn">🚀 Начать блиц</button>
+            </div>
+            
+            <div id="blitzGameArea" class="blitz-game-area" style="display: none;">
+                <div class="blitz-header">
+                    <span>Задача <span id="blitzCurrentNum">1</span>/<span id="blitzTotalTasks">10</span></span>
+                    <span class="blitz-timer" id="blitzTimerDisplay">00:10</span>
+                </div>
+                <div class="blitz-example" id="blitzExample">5 + 3</div>
+                <div class="blitz-input-block">
+                    <input type="number" id="blitzInput" class="big-input" placeholder="ответ" autofocus>
+                    <button class="big-btn" id="blitzAnswerBtn">✅ Ответить</button>
+                </div>
+                <div class="blitz-feedback" id="blitzFeedback"></div>
+                <div class="blitz-result" id="blitzResult" style="display: none;"></div>
+            </div>
         </div>
 
         <div class="links">
@@ -356,6 +474,20 @@ Math game for children
         let compState = {
             p1: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false },
             p2: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false }
+        };
+
+        // Состояние блица
+        let blitzState = {
+            active: false,
+            tasks: [],
+            currentIdx: 0,
+            correct: 0,
+            wrong: 0,
+            timeLeft: 10,
+            timer: null,
+            totalTasks: 10,
+            timeLimit: 10,
+            feedback: []
         };
 
         // Элементы
@@ -413,27 +545,257 @@ Math game for children
             return { text: `${a} ${op} ${b}`, answer, op };
         }
 
-        // Генерация 10 задач для игрока
-        function generateTasks() {
-            let tasks = [];
-            for (let i = 0; i < 10; i++) {
-                tasks.push(generateExample());
-            }
-            return tasks;
-        }
-
-        // Обновить UI настроек
         function updateSettingsUI() {
             digitBtns.forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.digits) === currentDigits));
             opBtns.forEach(btn => btn.classList.toggle('active', selectedOps.has(btn.dataset.op)));
             multiToggle.classList.toggle('active', multiMode);
         }
 
-        // Запуск игрока
+        // ========== БЛИЦ-ТУРНИР ==========
+        function startBlitz() {
+            // Получаем настройки
+            blitzState.totalTasks = parseInt(document.getElementById('blitzTaskCount').value) || 10;
+            blitzState.timeLimit = parseInt(document.getElementById('blitzTimeLimit').value) || 10;
+            
+            // Генерируем задачи
+            blitzState.tasks = [];
+            for (let i = 0; i < blitzState.totalTasks; i++) {
+                blitzState.tasks.push(generateExample());
+            }
+            
+            // Сбрасываем состояние
+            blitzState.currentIdx = 0;
+            blitzState.correct = 0;
+            blitzState.wrong = 0;
+            blitzState.feedback = [];
+            blitzState.active = true;
+            blitzState.timeLeft = blitzState.timeLimit;
+            
+            // Показываем игровую область
+            document.getElementById('blitzGameArea').style.display = 'block';
+            document.getElementById('blitzResult').style.display = 'none';
+            document.getElementById('blitzFeedback').innerHTML = '';
+            
+            // Обновляем интерфейс
+            document.getElementById('blitzTotalTasks').innerText = blitzState.totalTasks;
+            document.getElementById('blitzCurrentNum').innerText = 1;
+            document.getElementById('blitzExample').innerText = blitzState.tasks[0].text;
+            document.getElementById('blitzInput').value = '';
+            document.getElementById('blitzInput').focus();
+            document.getElementById('blitzTimerDisplay').innerText = '00:' + (blitzState.timeLeft < 10 ? '0' : '') + blitzState.timeLeft;
+            
+            // Запускаем таймер
+            if (blitzState.timer) clearInterval(blitzState.timer);
+            blitzState.timer = setInterval(() => {
+                if (!blitzState.active) return;
+                
+                blitzState.timeLeft--;
+                if (blitzState.timeLeft < 0) blitzState.timeLeft = 0;
+                
+                // Обновляем отображение таймера
+                let seconds = blitzState.timeLeft;
+                document.getElementById('blitzTimerDisplay').innerText = '00:' + (seconds < 10 ? '0' : '') + seconds;
+                
+                // Если время вышло
+                if (blitzState.timeLeft <= 0) {
+                    // Засчитываем ошибку
+                    blitzState.wrong++;
+                    blitzState.feedback.push('❌');
+                    updateBlitzFeedback();
+                    
+                    // Переходим к следующей задаче
+                    blitzState.currentIdx++;
+                    
+                    if (blitzState.currentIdx < blitzState.totalTasks) {
+                        // Следующая задача
+                        blitzState.timeLeft = blitzState.timeLimit;
+                        document.getElementById('blitzCurrentNum').innerText = blitzState.currentIdx + 1;
+                        document.getElementById('blitzExample').innerText = blitzState.tasks[blitzState.currentIdx].text;
+                        document.getElementById('blitzInput').value = '';
+                        document.getElementById('blitzInput').focus();
+                    } else {
+                        // Блиц завершён
+                        finishBlitz();
+                    }
+                }
+            }, 1000);
+        }
+        
+        function updateBlitzFeedback() {
+            let html = '';
+            blitzState.feedback.forEach(f => {
+                if (f === '✅') html += '<span class="correct-icon">✅</span> ';
+                else html += '<span class="wrong-icon">❌</span> ';
+            });
+            document.getElementById('blitzFeedback').innerHTML = html;
+        }
+        
+        function handleBlitzAnswer() {
+            if (!blitzState.active) return;
+            
+            const input = document.getElementById('blitzInput');
+            const val = parseInt(input.value);
+            
+            if (isNaN(val)) {
+                alert('Введите число!');
+                return;
+            }
+            
+            const currentTask = blitzState.tasks[blitzState.currentIdx];
+            
+            if (val === currentTask.answer) {
+                blitzState.correct++;
+                blitzState.feedback.push('✅');
+            } else {
+                blitzState.wrong++;
+                blitzState.feedback.push('❌');
+            }
+            
+            updateBlitzFeedback();
+            
+            // Переходим к следующей задаче
+            blitzState.currentIdx++;
+            
+            if (blitzState.currentIdx < blitzState.totalTasks) {
+                // Следующая задача
+                blitzState.timeLeft = blitzState.timeLimit;
+                document.getElementById('blitzCurrentNum').innerText = blitzState.currentIdx + 1;
+                document.getElementById('blitzExample').innerText = blitzState.tasks[blitzState.currentIdx].text;
+                document.getElementById('blitzInput').value = '';
+                document.getElementById('blitzInput').focus();
+            } else {
+                // Блиц завершён
+                finishBlitz();
+            }
+        }
+        
+        function finishBlitz() {
+            blitzState.active = false;
+            clearInterval(blitzState.timer);
+            
+            const total = blitzState.totalTasks;
+            const correct = blitzState.correct;
+            const percent = (correct / total) * 100;
+            
+            let grade = 1;
+            let gradeText = '1 😰';
+            
+            if (percent >= 100) { grade = 5; gradeText = '5 🏆'; }
+            else if (percent >= 80) { grade = 4; gradeText = '4 👍'; }
+            else if (percent >= 60) { grade = 3; gradeText = '3 😐'; }
+            else if (percent >= 40) { grade = 2; gradeText = '2 👎'; }
+            else { grade = 1; gradeText = '1 💔'; }
+            
+            document.getElementById('blitzResult').style.display = 'block';
+            document.getElementById('blitzResult').innerHTML = `
+                <h2>🏁 Блиц завершён!</h2>
+                ✅ Правильно: ${correct} из ${total}<br>
+                📊 Точность: ${percent.toFixed(1)}%<br>
+                <div class="grade">Оценка: ${gradeText}</div>
+            `;
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        window.addEventListener('load', () => {
+            updateSettingsUI();
+
+            // Переключение режимов
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.classic-area, .competition-area, .blitz-area').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    document.getElementById(btn.dataset.mode + 'Mode').classList.add('active');
+                    
+                    if (btn.dataset.mode === 'classic') {
+                        document.getElementById('classicAnswer').focus();
+                    }
+                });
+            });
+
+            // Настройки
+            digitBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentDigits = parseInt(btn.dataset.digits);
+                    updateSettingsUI();
+                });
+            });
+
+            opBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const op = btn.dataset.op;
+                    if (multiMode) {
+                        if (selectedOps.has(op)) {
+                            if (selectedOps.size > 1) selectedOps.delete(op);
+                        } else selectedOps.add(op);
+                    } else {
+                        selectedOps.clear();
+                        selectedOps.add(op);
+                    }
+                    updateSettingsUI();
+                });
+            });
+
+            multiToggle.addEventListener('click', () => {
+                multiMode = !multiMode;
+                if (!multiMode && selectedOps.size > 1) {
+                    const first = Array.from(selectedOps)[0];
+                    selectedOps.clear();
+                    selectedOps.add(first);
+                }
+                updateSettingsUI();
+            });
+
+            // Классика
+            document.getElementById('classicCheck').addEventListener('click', () => {
+                document.getElementById('classicExample').innerText = generateExample().text;
+                document.getElementById('classicAnswer').value = '';
+                document.getElementById('classicAnswer').focus();
+            });
+            document.getElementById('classicAnswer').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('classicExample').innerText = generateExample().text;
+                    document.getElementById('classicAnswer').value = '';
+                    document.getElementById('classicAnswer').focus();
+                }
+            });
+
+            // Соревнование
+            document.getElementById('p1StartBtn').addEventListener('click', () => startPlayer(1));
+            document.getElementById('p2StartBtn').addEventListener('click', () => startPlayer(2));
+
+            document.getElementById('p1Input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handlePlayerAnswer(1);
+                }
+            });
+            document.getElementById('p2Input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handlePlayerAnswer(2);
+                }
+            });
+
+            // БЛИЦ
+            document.getElementById('blitzStartBtn').addEventListener('click', startBlitz);
+            document.getElementById('blitzAnswerBtn').addEventListener('click', handleBlitzAnswer);
+            document.getElementById('blitzInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleBlitzAnswer();
+                }
+            });
+        });
+
+        // Функции для соревнования
         function startPlayer(playerNum) {
             if (playerNum === 1) {
                 if (compState.p1.active || compState.p1.done) return;
-                compState.p1.tasks = generateTasks();
+                compState.p1.tasks = [];
+                for (let i = 0; i < 10; i++) compState.p1.tasks.push(generateExample());
                 compState.p1.currentIdx = 0;
                 compState.p1.time = 0;
                 compState.p1.active = true;
@@ -453,7 +815,8 @@ Math game for children
                 }, 100);
             } else {
                 if (compState.p2.active || compState.p2.done) return;
-                compState.p2.tasks = generateTasks();
+                compState.p2.tasks = [];
+                for (let i = 0; i < 10; i++) compState.p2.tasks.push(generateExample());
                 compState.p2.currentIdx = 0;
                 compState.p2.time = 0;
                 compState.p2.active = true;
@@ -474,7 +837,6 @@ Math game for children
             }
         }
 
-        // Обработка ответа игрока
         function handlePlayerAnswer(playerNum) {
             if (playerNum === 1) {
                 if (!compState.p1.active) return;
@@ -484,10 +846,8 @@ Math game for children
 
                 const task = compState.p1.tasks[compState.p1.currentIdx];
                 if (val === task.answer) {
-                    // Правильно - следующая задача
                     compState.p1.currentIdx++;
                     if (compState.p1.currentIdx >= 10) {
-                        // Игрок закончил
                         compState.p1.active = false;
                         compState.p1.done = true;
                         clearInterval(compState.p1.timer);
@@ -498,11 +858,9 @@ Math game for children
                         document.getElementById('p1Example').innerText = compState.p1.tasks[compState.p1.currentIdx].text;
                         document.getElementById('p1Progress').innerText = `${compState.p1.currentIdx+1}/10`;
                     }
-                } else {
-                    // Неправильно - ничего не меняем, просто очищаем поле
                 }
                 input.value = '';
-                input.focus(); // сохраняем фокус
+                input.focus();
             } else {
                 if (!compState.p2.active) return;
                 const input = document.getElementById('p2Input');
@@ -528,7 +886,6 @@ Math game for children
                 input.focus();
             }
 
-            // Проверяем, закончили ли оба
             if (compState.p1.done && compState.p2.done) {
                 let winner = '';
                 if (compState.p1.time < compState.p2.time) winner = '🏆 Победил Игрок 1 (быстрее)!';
@@ -537,99 +894,6 @@ Math game for children
                 document.getElementById('compWinner').innerHTML = `${winner}<br>⏱️ Игрок1: ${compState.p1.time.toFixed(1)}с | Игрок2: ${compState.p2.time.toFixed(1)}с`;
             }
         }
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        window.addEventListener('load', () => {
-            updateSettingsUI();
-
-            // Переключение режимов
-            document.querySelectorAll('.menu-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.querySelectorAll('.classic-area, .competition-area, .blitz-area').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    document.getElementById(btn.dataset.mode + 'Mode').classList.add('active');
-                    
-                    // Автофокус для классики
-                    if (btn.dataset.mode === 'classic') {
-                        document.getElementById('classicAnswer').focus();
-                    }
-                });
-            });
-
-            // Настройки
-            digitBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentDigits = parseInt(btn.dataset.digits);
-                    updateSettingsUI();
-                    document.getElementById('classicExample').innerText = generateExample().text;
-                });
-            });
-
-            opBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const op = btn.dataset.op;
-                    if (multiMode) {
-                        if (selectedOps.has(op)) {
-                            if (selectedOps.size > 1) selectedOps.delete(op);
-                        } else selectedOps.add(op);
-                    } else {
-                        selectedOps.clear();
-                        selectedOps.add(op);
-                    }
-                    updateSettingsUI();
-                    document.getElementById('classicExample').innerText = generateExample().text;
-                });
-            });
-
-            multiToggle.addEventListener('click', () => {
-                multiMode = !multiMode;
-                if (!multiMode && selectedOps.size > 1) {
-                    const first = Array.from(selectedOps)[0];
-                    selectedOps.clear();
-                    selectedOps.add(first);
-                }
-                updateSettingsUI();
-                document.getElementById('classicExample').innerText = generateExample().text;
-            });
-
-            // Классика
-            document.getElementById('classicCheck').addEventListener('click', () => {
-                document.getElementById('classicExample').innerText = generateExample().text;
-                document.getElementById('classicAnswer').value = '';
-                document.getElementById('classicAnswer').focus();
-            });
-            document.getElementById('classicAnswer').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    document.getElementById('classicExample').innerText = generateExample().text;
-                    document.getElementById('classicAnswer').value = '';
-                    document.getElementById('classicAnswer').focus();
-                }
-            });
-
-            // Соревнование: кнопки СТАРТ
-            document.getElementById('p1StartBtn').addEventListener('click', () => startPlayer(1));
-            document.getElementById('p2StartBtn').addEventListener('click', () => startPlayer(2));
-
-            // Соревнование: обработка ввода (Enter)
-            document.getElementById('p1Input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handlePlayerAnswer(1);
-                }
-            });
-            document.getElementById('p2Input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handlePlayerAnswer(2);
-                }
-            });
-
-            // Также можно отвечать кнопкой (на случай сенсорных устройств)
-            // Добавим невидимые кнопки-обработчики (опционально)
-        });
     })();
 </script>
 </body>
