@@ -5,7 +5,7 @@ Math game for children
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮 Считалочка: соревнование ИСПРАВЛЕНО</title>
+    <title>🧮 Считалочка: соревнование 10 правильных ответов</title>
     <style>
         * {
             margin: 0;
@@ -210,7 +210,7 @@ Math game for children
             font-size: 3rem;
         }
 
-        /* СОРЕВНОВАНИЕ */
+        /* СОРЕВНОВАНИЕ - обновлено для 10 правильных ответов */
         .competition-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -468,7 +468,7 @@ Math game for children
             <div class="feedback-message" id="classicFeedback">➡️ Введи ответ и нажми Enter</div>
         </div>
 
-        <!-- Соревнование -->
+        <!-- Соревнование - ОБНОВЛЕНО: нужно 10 правильных ответов -->
         <div id="competitionMode" class="competition-area">
             <div class="competition-grid">
                 <!-- Игрок 1 -->
@@ -477,7 +477,7 @@ Math game for children
                     <div class="comp-example" id="p1Example">5 + 3</div>
                     <input type="number" id="p1Input" class="comp-input" placeholder="ответ" disabled>
                     <button class="player-start-btn" id="p1StartBtn">🚀 СТАРТ</button>
-                    <div class="comp-progress" id="p1Progress">0/10</div>
+                    <div class="comp-progress" id="p1Progress">0/10 правильных</div>
                     <div class="player-timer" id="p1Timer">0.0 с</div>
                     <div class="comp-feedback" id="p1Feedback"></div>
                 </div>
@@ -487,7 +487,7 @@ Math game for children
                     <div class="comp-example" id="p2Example">7 - 2</div>
                     <input type="number" id="p2Input" class="comp-input" placeholder="ответ" disabled>
                     <button class="player-start-btn" id="p2StartBtn">🚀 СТАРТ</button>
-                    <div class="comp-progress" id="p2Progress">0/10</div>
+                    <div class="comp-progress" id="p2Progress">0/10 правильных</div>
                     <div class="player-timer" id="p2Timer">0.0 с</div>
                     <div class="comp-feedback" id="p2Feedback"></div>
                 </div>
@@ -542,10 +542,26 @@ Math game for children
         // Состояние классики
         let classicCurrentExample = { text: '5 + 3', answer: 8 };
 
-        // Состояние соревнования - ИСПРАВЛЕНО
+        // Состояние соревнования - ОБНОВЛЕНО: теперь считаем правильные ответы
         let compState = {
-            p1: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false },
-            p2: { active: false, tasks: [], currentIdx: 0, time: 0, timer: null, done: false }
+            p1: { 
+                active: false, 
+                tasks: [], 
+                correctCount: 0,  // количество правильных ответов
+                currentTask: null, // текущая задача
+                time: 0, 
+                timer: null, 
+                done: false 
+            },
+            p2: { 
+                active: false, 
+                tasks: [], 
+                correctCount: 0,
+                currentTask: null,
+                time: 0, 
+                timer: null, 
+                done: false 
+            }
         };
 
         // Состояние блица
@@ -662,45 +678,36 @@ Math game for children
             input.focus();
         }
 
-        // ========== СОРЕВНОВАНИЕ (ИСПРАВЛЕНО) ==========
+        // ========== СОРЕВНОВАНИЕ (10 ПРАВИЛЬНЫХ ОТВЕТОВ) ==========
         function startPlayer(playerNum) {
             // Проверяем, может ли игрок начать
             if (playerNum === 1) {
-                // Игрок 1 может начать, если:
-                // 1. Он не активен
-                // 2. Он не закончил
-                // 3. Игрок 2 не активен (не играет сейчас)
                 if (compState.p1.active || compState.p1.done || compState.p2.active) {
                     alert('Сейчас нельзя начать игру за Игрока 1');
                     return;
                 }
             } else {
-                // Игрок 2 может начать, если:
-                // 1. Он не активен
-                // 2. Он не закончил
-                // 3. Игрок 1 не активен (не играет сейчас)
                 if (compState.p2.active || compState.p2.done || compState.p1.active) {
                     alert('Сейчас нельзя начать игру за Игрока 2');
                     return;
                 }
             }
 
-            // Генерируем 10 задач
-            const tasks = [];
-            for (let i = 0; i < 10; i++) tasks.push(generateExample());
+            // Генерируем первую задачу
+            const firstTask = generateExample();
 
             if (playerNum === 1) {
-                compState.p1.tasks = tasks;
-                compState.p1.currentIdx = 0;
+                compState.p1.correctCount = 0;
+                compState.p1.currentTask = firstTask;
                 compState.p1.time = 0;
                 compState.p1.active = true;
                 compState.p1.done = false;
 
-                document.getElementById('p1Example').innerText = tasks[0].text;
+                document.getElementById('p1Example').innerText = firstTask.text;
                 document.getElementById('p1Input').disabled = false;
                 document.getElementById('p1Input').value = '';
                 document.getElementById('p1StartBtn').disabled = true;
-                document.getElementById('p1Progress').innerText = `1/10`;
+                document.getElementById('p1Progress').innerText = `0/10 правильных`;
                 document.getElementById('p1Feedback').innerHTML = '';
 
                 // Блокируем кнопку второго игрока
@@ -716,17 +723,17 @@ Math game for children
                     document.getElementById('p1Timer').innerText = compState.p1.time.toFixed(1) + ' с';
                 }, 100);
             } else {
-                compState.p2.tasks = tasks;
-                compState.p2.currentIdx = 0;
+                compState.p2.correctCount = 0;
+                compState.p2.currentTask = firstTask;
                 compState.p2.time = 0;
                 compState.p2.active = true;
                 compState.p2.done = false;
 
-                document.getElementById('p2Example').innerText = tasks[0].text;
+                document.getElementById('p2Example').innerText = firstTask.text;
                 document.getElementById('p2Input').disabled = false;
                 document.getElementById('p2Input').value = '';
                 document.getElementById('p2StartBtn').disabled = true;
-                document.getElementById('p2Progress').innerText = `1/10`;
+                document.getElementById('p2Progress').innerText = `0/10 правильных`;
                 document.getElementById('p2Feedback').innerHTML = '';
 
                 // Блокируем кнопку первого игрока
@@ -760,22 +767,24 @@ Math game for children
                     return;
                 }
 
-                const task = compState.p1.tasks[compState.p1.currentIdx];
+                const task = compState.p1.currentTask;
                 const feedbackDiv = document.getElementById('p1Feedback');
                 
                 if (val === task.answer) {
+                    // ПРАВИЛЬНО: увеличиваем счётчик правильных ответов
                     feedbackDiv.innerHTML = '✅';
                     feedbackDiv.style.color = '#27ae60';
                     feedbackDiv.style.fontSize = '3rem';
                     
-                    compState.p1.currentIdx++;
-                    if (compState.p1.currentIdx >= 10) {
-                        // Игрок 1 закончил
+                    compState.p1.correctCount++;
+                    
+                    if (compState.p1.correctCount >= 10) {
+                        // Игрок 1 набрал 10 правильных ответов - победа
                         compState.p1.active = false;
                         compState.p1.done = true;
                         clearInterval(compState.p1.timer);
                         document.getElementById('p1Input').disabled = true;
-                        document.getElementById('p1Progress').innerText = `10/10 ✅`;
+                        document.getElementById('p1Progress').innerText = `10/10 правильных ✅`;
                         
                         // Разблокируем кнопку второго игрока, если он ещё не закончил
                         if (!compState.p2.done) {
@@ -785,11 +794,14 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        document.getElementById('p1Example').innerText = compState.p1.tasks[compState.p1.currentIdx].text;
-                        document.getElementById('p1Progress').innerText = `${compState.p1.currentIdx+1}/10`;
+                        // Генерируем новую задачу
+                        compState.p1.currentTask = generateExample();
+                        document.getElementById('p1Example').innerText = compState.p1.currentTask.text;
+                        document.getElementById('p1Progress').innerText = `${compState.p1.correctCount}/10 правильных`;
                         input.focus();
                     }
                 } else {
+                    // НЕПРАВИЛЬНО: счётчик не увеличивается, просто показываем ошибку
                     feedbackDiv.innerHTML = `❌ Правильно: ${task.answer}`;
                     feedbackDiv.style.color = '#e74c3c';
                     feedbackDiv.style.fontSize = '2rem';
@@ -809,22 +821,24 @@ Math game for children
                     return;
                 }
 
-                const task = compState.p2.tasks[compState.p2.currentIdx];
+                const task = compState.p2.currentTask;
                 const feedbackDiv = document.getElementById('p2Feedback');
                 
                 if (val === task.answer) {
+                    // ПРАВИЛЬНО: увеличиваем счётчик правильных ответов
                     feedbackDiv.innerHTML = '✅';
                     feedbackDiv.style.color = '#27ae60';
                     feedbackDiv.style.fontSize = '3rem';
                     
-                    compState.p2.currentIdx++;
-                    if (compState.p2.currentIdx >= 10) {
-                        // Игрок 2 закончил
+                    compState.p2.correctCount++;
+                    
+                    if (compState.p2.correctCount >= 10) {
+                        // Игрок 2 набрал 10 правильных ответов - победа
                         compState.p2.active = false;
                         compState.p2.done = true;
                         clearInterval(compState.p2.timer);
                         document.getElementById('p2Input').disabled = true;
-                        document.getElementById('p2Progress').innerText = `10/10 ✅`;
+                        document.getElementById('p2Progress').innerText = `10/10 правильных ✅`;
                         
                         // Разблокируем кнопку первого игрока, если он ещё не закончил
                         if (!compState.p1.done) {
@@ -834,11 +848,14 @@ Math game for children
                         // Проверяем, не закончили ли оба
                         checkCompetitionEnd();
                     } else {
-                        document.getElementById('p2Example').innerText = compState.p2.tasks[compState.p2.currentIdx].text;
-                        document.getElementById('p2Progress').innerText = `${compState.p2.currentIdx+1}/10`;
+                        // Генерируем новую задачу
+                        compState.p2.currentTask = generateExample();
+                        document.getElementById('p2Example').innerText = compState.p2.currentTask.text;
+                        document.getElementById('p2Progress').innerText = `${compState.p2.correctCount}/10 правильных`;
                         input.focus();
                     }
                 } else {
+                    // НЕПРАВИЛЬНО: счётчик не увеличивается
                     feedbackDiv.innerHTML = `❌ Правильно: ${task.answer}`;
                     feedbackDiv.style.color = '#e74c3c';
                     feedbackDiv.style.fontSize = '2rem';
@@ -872,8 +889,8 @@ Math game for children
                 compState.p2.active = false;
                 
                 // Сбрасываем прогресс
-                document.getElementById('p1Progress').innerText = '0/10';
-                document.getElementById('p2Progress').innerText = '0/10';
+                document.getElementById('p1Progress').innerText = '0/10 правильных';
+                document.getElementById('p2Progress').innerText = '0/10 правильных';
                 document.getElementById('p1Timer').innerText = '0.0 с';
                 document.getElementById('p2Timer').innerText = '0.0 с';
                 document.getElementById('p1Example').innerText = '5 + 3';
